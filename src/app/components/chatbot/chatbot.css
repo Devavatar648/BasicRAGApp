@@ -1,0 +1,43 @@
+/* Stepper Tracker Line */
+.stepper-line {
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background-color: #e9ecef;
+  z-index: 0;
+}
+
+.step-icon {
+  width: 42px;
+  height: 42px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+/* Chat Container Sizing */
+.chat-card {
+  height: calc(100vh - 280px);
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Chat Bubbles Width Control */
+.max-w-75 {
+  max-width: 75%;
+}
+
+.fs-7 {
+  font-size: 0.75rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

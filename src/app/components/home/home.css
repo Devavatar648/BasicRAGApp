@@ -1,0 +1,14 @@
+/* Background Gradient for Hero */
+.hero-section {
+  background: radial-gradient(100% 100% at 50% 0%, rgba(13, 110, 253, 0.08) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+/* Hover Interaction on Feature Cards */
+.feature-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.08) !important;
+}

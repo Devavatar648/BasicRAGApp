@@ -1,0 +1,122 @@
+<section class="hero-section py-5 py-lg-6 border-bottom">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      
+      <div class="col-lg-6">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-3 fw-bold">
+          <i class="bi bi-lightning-charge-fill me-1"></i> RAG Engine 2.0
+        </span>
+        <h1 class="display-4 fw-bold text-dark lh-sm mb-3">
+          Ground your AI Chatbots in Real-Time Knowledge
+        </h1>
+        <p class="lead text-secondary mb-4">
+          Stop LLM hallucinations. BasicRAGApp connects your custom documentation directly to vector storage for accurate, instant retrieval.
+        </p>
+        <div class="d-flex flex-column flex-sm-row gap-3">
+          <button class="btn btn-primary btn-lg px-4 fw-bold rounded-pill shadow"
+          (click)="getStarted()"
+          >Get Started Free</button>
+        </div>
+      </div>
+      
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+          <div class="card-header bg-dark text-white d-flex align-items-center px-3 py-2">
+            <span class="bg-danger rounded-circle d-inline-block me-1" style="width:10px; height:10px;"></span>
+            <span class="bg-warning rounded-circle d-inline-block me-1" style="width:10px; height:10px;"></span>
+            <span class="bg-success rounded-circle d-inline-block me-2" style="width:10px; height:10px;"></span>
+            <small class="text-white-50 font-monospace">BasicRAGApp Pipeline Console</small>
+          </div>
+          <div class="card-body bg-dark text-light p-4 font-monospace small">
+            <p class="text-success mb-1">&gt; Initializing Vector Database Link...</p>
+            <p class="text-info mb-1">&gt; Ingesting documents: PDF, Notion, SQL Server</p>
+            <p class="text-warning mb-3">&gt; Embeddings generated successfully (Dimension: 1536)</p>
+            <div class="p-3 bg-secondary bg-opacity-25 rounded border border-secondary border-opacity-50">
+              <div class="text-white-50">User Query:</div>
+              <div class="text-white fw-bold mb-2">"What is our refund policy on API calls?"</div>
+              <div class="text-white-50">Retrieved Context (Top-1 Match):</div>
+              <div class="text-success">"Docs/Terms.pdf (Score: 0.94)"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="features" class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="text-center max-w-xl mx-auto mb-5">
+      <h2 class="fw-bold text-dark">Built for Reliable AI Applications</h2>
+      <p class="text-muted">Everything you need to deploy production-ready Retrieval-Augmented Generation.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 bg-light p-4 rounded-4 feature-card">
+          <div class="text-primary fs-2 mb-3">
+            <i class="bi bi-file-earmark-code"></i>
+          </div>
+          <h4 class="fw-bold fs-5 text-dark">Automated Ingestion</h4>
+          <p class="text-muted small mb-0">Chunk, tokenize, and embed raw documents or database records automatically without custom scripts.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 bg-light p-4 rounded-4 feature-card">
+          <div class="text-primary fs-2 mb-3">
+            <i class="bi bi-search"></i>
+          </div>
+          <h4 class="fw-bold fs-5 text-dark">Hybrid Semantic Search</h4>
+          <p class="text-muted small mb-0">Combines vector similarity search with keyword BM25 retrieval for precise context extraction.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 bg-light p-4 rounded-4 feature-card">
+          <div class="text-primary fs-2 mb-3">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h4 class="fw-bold fs-5 text-dark">Zero-Hallucination Guard</h4>
+          <p class="text-muted small mb-0">Strict fallback mechanisms prevent the model from fabricating responses when source data is missing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works" class="py-5 bg-light border-top border-bottom">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold text-dark">How RAG Works in 3 Steps</h2>
+      <p class="text-muted">Connecting raw data sources to intelligent output.</p>
+    </div>
+
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="bg-primary text-white rounded-circle fs-5 fw-bold mb-3 mx-auto d-flex align-items-center justify-content-center" style="width:45px; height:45px;">1</div>
+          <h5 class="fw-bold">Retrieve</h5>
+          <p class="text-muted small mb-0">Search vector embeddings instantly matching user queries to relevant text chunks.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="bg-primary text-white rounded-circle fs-5 fw-bold mb-3 mx-auto d-flex align-items-center justify-content-center" style="width:45px; height:45px;">2</div>
+          <h5 class="fw-bold">Augment</h5>
+          <p class="text-muted small mb-0">Inject retrieved document snippets directly into the LLM system prompt context window.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="bg-primary text-white rounded-circle fs-5 fw-bold mb-3 mx-auto d-flex align-items-center justify-content-center" style="width:45px; height:45px;">3</div>
+          <h5 class="fw-bold">Generate</h5>
+          <p class="text-muted small mb-0">Produce verifiable, factually backed answers with complete source citation links.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

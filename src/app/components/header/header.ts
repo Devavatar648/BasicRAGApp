@@ -1,0 +1,52 @@
+import { Component, inject, signal, Signal } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { UserService } from '../../services/user-service';
+import { OKTA_AUTH, OktaAuthStateService } from '@okta/okta-angular';
+import { combineLatest, firstValueFrom } from 'rxjs';
+
+@Component({
+  selector: 'app-header',
+  imports: [RouterModule],
+  templateUrl: './header.html',
+  styleUrl: './header.css',
+})
+export class Header {
+
+  private router = inject(Router);
+  private userService = inject(UserService);
+  private authStateService = inject(OktaAuthStateService);
+  private oktaAuth = inject(OKTA_AUTH);
+
+  isLoggedIn = signal(false);
+
+  ngOnInit() {
+    const u = localStorage.getItem('basicRAGAppUser')
+    if (u) {
+      this.isLoggedIn.set(true);
+      this.userService.isLoggedin.next(true);
+    }
+    combineLatest([
+      this.authStateService.authState$,
+      this.userService.isLoggedin
+    ]).subscribe(([authState, userServiceLoggedIn]) => {
+      console.log(authState);
+      const isLoggedIn = Boolean(authState?.isAuthenticated || userServiceLoggedIn);
+      this.isLoggedIn.set(isLoggedIn);
+    });
+  }
+
+  onLogin() {
+    this.router.navigateByUrl("/login");
+  }
+
+  async logout() {
+    const authProvider = localStorage.getItem('auth-provider');
+    if(authProvider=='okta'){
+      await this.oktaAuth.signOut();
+      return;
+    }
+    localStorage.removeItem('basicRAGAppUser');
+    this.userService.isLoggedin.next(false);
+  }
+
+}
