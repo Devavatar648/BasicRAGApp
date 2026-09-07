@@ -16,6 +16,7 @@ export class Login {
   private userService = inject(UserService);
   private router = inject(Router);
   private oktaAuth = inject(OKTA_AUTH);
+  private authStateService = inject(OktaAuthStateService);
 
   loginForm!: FormGroup;
   showPassword = false;
@@ -29,6 +30,13 @@ export class Login {
         user: [true],
         admin: [false]
       })
+    });
+
+    this.authStateService.authState$.subscribe(authState => {
+      if (authState?.isAuthenticated) {
+        this.userService.isLoggedin.next(true);
+        this.router.navigateByUrl('home');
+      }
     });
   }
 
