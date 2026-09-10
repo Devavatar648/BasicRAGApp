@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ChatResponse, ChatService, TrainResponse } from '../../services/chat-service';
 
 interface Message {
   sender: 'bot' | 'user';
@@ -17,70 +18,111 @@ interface Message {
 export class Chatbot {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
+  private ragService = inject(ChatService);
+
   // Pipeline Step State: 0 = Idle, 1 = Uploaded, 2 = Chunked, 3 = Embedded, 4 = Vector Stored, 5 = Complete
   currentStep: number = 0;
   failedStep: number | null = null; // Set step index if processing fails (e.g., 2)
   isReady: boolean = false;
   userInput: string = '';
 
-  messages: Message[] = [
+  messages = signal([
     {
       sender: 'bot',
       text: 'Hello! Upload a document using the stepper above to start querying your knowledge base.',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
-  ];
+  ]);
 
-  // Simulates uploading and the processing pipeline
+  // Uploading and calling the real /train backend service
   onFileUpload(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
 
-    const fileName = input.files[0].name;
+    const files = input.files;
+    const fileName = files[0].name;
     this.currentStep = 1;
     this.failedStep = null;
     this.isReady = false;
 
-    // Simulate RAG steps asynchronously
-    setTimeout(() => this.currentStep = 2, 1000); // Chunking
-    setTimeout(() => this.currentStep = 3, 2200); // Embedding
-    setTimeout(() => this.currentStep = 4, 3400); // Vector DB Storage
-    setTimeout(() => {
-      this.currentStep = 5;
-      this.isReady = true;
+    // Visual step progression while backend processes files
+    const stepTimer1 = setTimeout(() => this.currentStep = 2, 1000); // Chunking
+    const stepTimer2 = setTimeout(() => this.currentStep = 3, 2200); // Embedding
+    const stepTimer3 = setTimeout(() => this.currentStep = 4, 3400); // Vector DB Storage
 
-      // Bot confirmation message
-      this.messages.push({
-        sender: 'bot',
-        text: `Successfully ingested and indexed "${fileName}". You can now ask questions!`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
-      this.scrollToBottom();
-    }, 4500);
+    this.ragService.trainRag(files).subscribe({
+      next: (response: TrainResponse) => {
+        console.log('solved 1 ...........');
+        // Clear remaining timeouts if API returned faster
+        clearTimeout(stepTimer1);
+        clearTimeout(stepTimer2);
+        clearTimeout(stepTimer3);
+
+        this.currentStep = 5;
+        this.isReady = true;
+        console.log('solved 2 ...........');
+        // Bot confirmation message
+        this.messages.update(mes=>[...mes, {
+          sender: 'bot',
+          text: `Successfully ingested and indexed "${fileName}". ${response.message || 'You can now ask questions!'}`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }]);
+        this.scrollToBottom();
+      },
+      error: (err) => {
+        clearTimeout(stepTimer1);
+        clearTimeout(stepTimer2);
+        clearTimeout(stepTimer3);
+
+        // Mark current running step as failed
+        this.failedStep = this.currentStep > 0 ? this.currentStep : 1;
+        this.isReady = false;
+
+        const errorMsg = err.error?.detail || 'An error occurred during document processing.';
+        this.messages.update(mes=>[...mes, {
+          sender: 'bot',
+          text: `Failed to process document: ${errorMsg}`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }]);
+        this.scrollToBottom();
+      }
+    });
   }
 
+  // Sends user prompt to real /chat backend service
   sendMessage(): void {
     if (!this.userInput.trim() || !this.isReady) return;
 
     const userText = this.userInput;
-    this.messages.push({
+    this.messages.update(msg=>[...msg, {
       sender: 'user',
       text: userText,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    });
+    }]);
 
     this.userInput = '';
     this.scrollToBottom();
 
-    // Simulated Bot Response
-    setTimeout(() => {
-      this.messages.push({
-        sender: 'bot',
-        text: `Based on your context context: Searching document snippets related to "${userText}"...`,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
-      this.scrollToBottom();
-    }, 1000);
+    // Call real /chat service
+    this.ragService.getRagResponse(userText).subscribe({
+      next: (response: ChatResponse) => {
+        this.messages.update(msg=>[...msg,{
+          sender: 'bot',
+          text: response.response?.answer,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }]);
+        this.scrollToBottom();
+      },
+      error: (err) => {
+        const errorMsg = err.error?.detail || 'Failed to fetch response from server.';
+        this.messages.update(msg=>[...msg,{
+          sender: 'bot',
+          text: `Error: ${errorMsg}`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }]);
+        this.scrollToBottom();
+      }
+    });
   }
 
   // Stepper Visual Helper Methods
@@ -101,13 +143,11 @@ export class Chatbot {
     this.currentStep = 0;
     this.failedStep = null;
     this.isReady = false;
-    this.messages = [
-      {
+    this.messages.set([{
         sender: 'bot',
         text: 'Session reset. Please upload a document to proceed.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ];
+      }])
   }
 
   private scrollToBottom(): void {
