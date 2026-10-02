@@ -3,12 +3,6 @@ import { Component, ElementRef, inject, signal, ViewChild } from '@angular/core'
 import { FormsModule } from '@angular/forms';
 import { ChatResponse, ChatService, TrainResponse } from '../../services/chat-service';
 
-interface Message {
-  sender: 'bot' | 'user';
-  text: string;
-  time: string;
-}
-
 @Component({
   selector: 'app-chatbot',
   imports: [CommonModule, FormsModule],
@@ -16,7 +10,9 @@ interface Message {
   styleUrl: './chatbot.css',
 })
 export class Chatbot {
+  
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+ 
 
   private ragService = inject(ChatService);
 
@@ -25,12 +21,14 @@ export class Chatbot {
   failedStep: number | null = null; // Set step index if processing fails (e.g., 2)
   isReady: boolean = false;
   userInput: string = '';
+  isThinking = false;
+  
 
   messages = signal([
     {
-      sender: 'bot',
-      text: 'Hello! Upload a document using the stepper above to start querying your knowledge base.',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+       sender: 'bot',
+       text: 'Upload pdf or text documents first to start the conversation...',
+       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
 
@@ -94,9 +92,14 @@ export class Chatbot {
     if (!this.userInput.trim() || !this.isReady) return;
 
     const userText = this.userInput;
-    this.messages.update(msg=>[...msg, {
+    this.messages.update(msg => [...msg, {
       sender: 'user',
       text: userText,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }]);
+    this.messages.update(msg => [...msg, {
+      sender: 'bot',
+      text: '🤖 Thinking..........',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }]);
 
@@ -106,20 +109,26 @@ export class Chatbot {
     // Call real /chat service
     this.ragService.getRagResponse(userText).subscribe({
       next: (response: ChatResponse) => {
-        this.messages.update(msg=>[...msg,{
-          sender: 'bot',
-          text: response.response?.answer,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
+        this.messages.update(msg => {
+          msg.pop();
+          return [...msg, {
+            sender: 'bot',
+            text: response.response?.answer,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]
+        });
         this.scrollToBottom();
       },
       error: (err) => {
         const errorMsg = err.error?.detail || 'Failed to fetch response from server.';
-        this.messages.update(msg=>[...msg,{
-          sender: 'bot',
-          text: `Error: ${errorMsg}`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
+        this.messages.update(msg => {
+          msg.pop();
+          return [...msg, {
+            sender: 'bot',
+            text: `Error: ${errorMsg}`,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }]
+        });
         this.scrollToBottom();
       }
     });
