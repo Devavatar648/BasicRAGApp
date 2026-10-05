@@ -45,12 +45,11 @@ export class Chatbot {
 
     // Visual step progression while backend processes files
     const stepTimer1 = setTimeout(() => this.currentStep = 2, 1000); // Chunking
-    const stepTimer2 = setTimeout(() => this.currentStep = 3, 2200); // Embedding
-    const stepTimer3 = setTimeout(() => this.currentStep = 4, 3400); // Vector DB Storage
+    const stepTimer2 = setTimeout(() => this.currentStep = 3, 1100); // Embedding
+    const stepTimer3 = setTimeout(() => this.currentStep = 4, 1200); // Vector DB Storage
 
     this.ragService.trainRag(files).subscribe({
       next: (response: TrainResponse) => {
-        console.log('solved 1 ...........');
         // Clear remaining timeouts if API returned faster
         clearTimeout(stepTimer1);
         clearTimeout(stepTimer2);
@@ -58,9 +57,8 @@ export class Chatbot {
 
         this.currentStep = 5;
         this.isReady = true;
-        console.log('solved 2 ...........');
         // Bot confirmation message
-        this.messages.update(mes=>[...mes, {
+        this.messages.update(mes => [...mes, {
           sender: 'bot',
           text: `Successfully ingested and indexed "${fileName}". ${response.message || 'You can now ask questions!'}`,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -77,7 +75,7 @@ export class Chatbot {
         this.isReady = false;
 
         const errorMsg = err.error?.detail || 'An error occurred during document processing.';
-        this.messages.update(mes=>[...mes, {
+        this.messages.update(mes => [...mes, {
           sender: 'bot',
           text: `Failed to process document: ${errorMsg}`,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -153,10 +151,10 @@ export class Chatbot {
     this.failedStep = null;
     this.isReady = false;
     this.messages.set([{
-        sender: 'bot',
-        text: 'Session reset. Please upload a document to proceed.',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }])
+      sender: 'bot',
+      text: 'Session reset. Please upload a document to proceed.',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }])
   }
 
   private scrollToBottom(): void {
